@@ -1,6 +1,7 @@
 // Import React hooks
 // useState stores data
 // useEffect runs code when something changes
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
 // Default tasks shown when the application is opened for the first time
@@ -14,18 +15,12 @@ const defaultTasks = [
 
 function App() {
   // Store all tasks in state
-  // First, check whether tasks were saved in localStorage
   const [tasks, setTasks] = useState(() => {
-    //tasks → Holds the current tasks.setTasks → Updates the tasks. useState() → Stores the data.
     const savedTasks = localStorage.getItem("tasks");
 
-    // If saved tasks exist, convert them from JSON to JavaScript data
     if (savedTasks) {
       return JSON.parse(savedTasks);
-    }
-
-    // If no saved tasks exist, show the default tasks
-    else {
+    } else {
       return defaultTasks;
     }
   });
@@ -34,11 +29,9 @@ function App() {
   const [taskInput, setTaskInput] = useState("");
 
   // Store the currently selected filter
-  // Default filter is All
   const [filter, setFilter] = useState("all");
 
   // Store the selected theme
-  // Load the previously selected theme if available
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
 
@@ -61,31 +54,24 @@ function App() {
 
   // Function to add a new task
   const handleAddTask = (e) => {
-    // Prevent the form from refreshing the page
     e.preventDefault();
 
-    // Do not add an empty task
     if (taskInput.trim() === "") {
       return;
     }
 
-    // Create a new task object
     const newTask = {
       id: crypto.randomUUID(),
       text: taskInput.trim(),
       completed: false,
     };
 
-    // Add the new task to the existing task list
     setTasks([...tasks, newTask]);
-
-    // Clear the input field after adding a task
     setTaskInput("");
   };
 
   // Function to mark a task as completed or active
   const handleToggleTask = (id) => {
-    // Find the selected task and change its completed status
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
         return {
@@ -94,28 +80,23 @@ function App() {
         };
       }
 
-      // Keep other tasks unchanged
       return task;
     });
 
-    // Update the tasks state
     setTasks(updatedTasks);
   };
 
   // Function to delete an individual task
   const handleDeleteTask = (id) => {
-    // Keep all tasks except the selected task
     const updatedTasks = tasks.filter((task) => {
       return task.id !== id;
     });
 
-    // Update the tasks state
     setTasks(updatedTasks);
   };
 
   // Function to remove all completed tasks
   const handleClearCompleted = () => {
-    // Keep only tasks that are not completed
     const updatedTasks = tasks.filter((task) => {
       return task.completed === false;
     });
@@ -125,17 +106,14 @@ function App() {
 
   // Filter tasks according to the selected filter button
   const filteredTasks = tasks.filter((task) => {
-    // Show only active tasks
     if (filter === "active") {
       return task.completed === false;
     }
 
-    // Show only completed tasks
     if (filter === "completed") {
       return task.completed === true;
     }
 
-    // Show all tasks
     return true;
   });
 
@@ -152,7 +130,6 @@ function App() {
   // Display the application UI
   return (
     // Main background
-    // Change background according to the selected theme
     <div
       className={`min-h-screen flex items-center justify-center p-4 sm:p-8 transition-colors duration-300 ${
         theme === "dark"
@@ -175,7 +152,10 @@ function App() {
           </div>
 
           {/* Button to switch between Light and Dark mode */}
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
             onClick={() => {
               if (theme === "light") {
                 setTheme("dark");
@@ -188,7 +168,7 @@ function App() {
             title="Toggle theme"
           >
             {theme === "light" ? "🌙" : "☀️"}
-          </button>
+          </Button>
         </div>
 
         {/* Form to add new tasks */}
@@ -206,28 +186,29 @@ function App() {
           />
 
           {/* Button to submit the new task */}
-          <button
+          <Button
             type="submit"
-            className="rounded-xl bg-lime-400 px-8 py-4 text-lg font-bold text-slate-950 transition hover:bg-lime-300 active:scale-95"
+            className="rounded-xl bg-lime-400 px-8 py-4 text-lg font-bold text-slate-950 hover:bg-lime-300 active:scale-95"
           >
             Add
-          </button>
+          </Button>
         </form>
 
         {/* Filter buttons: All, Active and Completed */}
         <div className="flex flex-wrap gap-3 mb-9">
           {["all", "active", "completed"].map((item) => (
-            <button
+            <Button
               key={item}
+              type="button"
               onClick={() => setFilter(item)}
               className={`rounded-xl border-2 px-6 py-3 text-base sm:text-lg capitalize transition ${
                 filter === item
-                  ? "bg-lime-400 border-lime-400 text-slate-950 font-semibold"
+                  ? "bg-lime-400 border-lime-400 text-slate-950 font-semibold hover:bg-lime-300"
                   : "bg-slate-100 border-slate-200 text-slate-700 hover:border-lime-400 dark:bg-navy-850 dark:border-navy-700 dark:text-navy-100 dark:hover:border-lime-400 dark:hover:bg-navy-800"
               }`}
             >
               {item}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -241,7 +222,6 @@ function App() {
               </p>
             </div>
           ) : filteredTasks.length === 0 ? (
-            // Show a message if the selected filter has no tasks
             <div className="rounded-xl border-2 border-dashed border-slate-200 dark:border-navy-700 py-12 text-center">
               <p className="text-lg text-slate-500 dark:text-navy-200">
                 No {filter} tasks found.
@@ -264,7 +244,6 @@ function App() {
                 />
 
                 {/* Display task text */}
-                {/* Add a line through the text if the task is completed */}
                 <p
                   className={`flex-1 min-w-0 break-words text-base sm:text-xl ${
                     task.completed
@@ -276,7 +255,10 @@ function App() {
                 </p>
 
                 {/* Button to delete an individual task */}
-                <button
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => handleDeleteTask(task.id)}
                   className="shrink-0 p-2 text-red-500 transition hover:text-red-700 hover:scale-110 dark:text-red-400 dark:hover:text-red-300"
                   aria-label="Delete task"
@@ -300,7 +282,7 @@ function App() {
                     <path d="M10 11v5" />
                     <path d="M14 11v5" />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))
           )}
@@ -314,13 +296,15 @@ function App() {
           </p>
 
           {/* Remove all completed tasks */}
-          <button
+          <Button
+            type="button"
+            variant="outline"
             onClick={handleClearCompleted}
             disabled={completedTasks === 0}
             className="rounded-xl border border-red-200 bg-red-50 px-6 py-3 text-base sm:text-lg text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
           >
             Clear Completed
-          </button>
+          </Button>
         </div>
       </div>
     </div>
